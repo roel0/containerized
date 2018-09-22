@@ -1,0 +1,22 @@
+FROM base:latest
+
+RUN pacman -Syu --noconfirm && \
+    pacman -S --needed base-devel git wget yajl --noconfirm
+
+RUN useradd builduser
+USER builduser
+
+RUN cd /tmp && \
+    git clone https://aur.archlinux.org/package-query.git && \
+    cd package-query/ && \
+    makepkg
+USER root
+RUN pacman -U /tmp/package-query/*.tar.xz --noconfirm
+
+USER builduser
+RUN cd /tmp && \
+    git clone https://aur.archlinux.org/yaourt.git && \
+    cd yaourt && \
+    makepkg
+USER root
+RUN pacman -U /tmp/yaourt/*.tar.xz --noconfirm

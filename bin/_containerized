@@ -1,0 +1,90 @@
+#!/usr/bin/bash
+
+docker="base"
+dockerags=""
+args=()
+while [[ $# -gt 0 ]]
+do
+    key="$1"
+    shift
+    case $key in
+        -d|--docker)
+        docker="$1"
+        shift
+        ;;
+        -c|--cmd)
+        cmd="$1"
+        shift
+        ;;
+        --dockerargs)
+        dockerargs="$1"
+        shift
+        ;;
+        *)
+        args+=("$key")
+    esac
+done
+if [ -z "$cmd" ]; then
+    cmd=$docker
+fi
+
+_not_found() {
+    echo "command not found: $1"
+    exit -1
+}
+
+if ! docker inspect --type=image "$docker" &> /dev/null ; then
+    if [ -z "$DOCKER_HOME_DIR" ]; then
+        echo "[WARN] DOCKER_HOME_DIR is undefined"
+        _not_found $docker
+    elif [ -f "${DOCKER_HOME_DIR}/${docker}.docker" ]; then
+        echo "### BUILDING DOCKER ###"
+        docker build -t $docker \
+                     -f "${DOCKER_HOME_DIR}/${docker}.docker" \
+                     . > /dev/null || _not_found $docker
+    else
+        _not_found $docker
+    fi
+fi
+echo "### RUNNING IN DOCKER ###"
+possible_vols=(
+   /tmp/.X11-unix
+   /run/user
+)
+vols=
+for vol in ${possible_vols[@]}; do
+    if [ -e "$vol" ]; then
+        vols="$vols --volume $vol:$vol"
+    fi
+done
+if [[ $(pwd) = *"/home/$USER"* ]]; then
+    vols="$vols --volume $(pwd):$(pwd)"
+fi
+
+devs=
+possible_devs=(
+    /dev/kvm
+    /dev/ttyUSB*
+    /dev/dri/*
+    /dev/snd/*
+)
+for dev in ${possible_devs[@]}; do
+    if [ -b "$dev" -o -c "$dev" ]; then
+        devs="$devs --device $dev:$dev"
+    fi
+done
+
+dasht=
+tty -s && dasht=-t
+
+docker run --rm -i $dasht \
+           $vols \
+           $devs \
+           $dockerargs \
+           -v /etc/passwd:/etc/passwd:ro \
+           -v /etc/group:/etc/group:ro \
+           -v /etc/localtime:/etc/localtime:ro \
+           -u $(id -u):$(id -g) \
+           --group-add audio \
+           $(env | cut -d= -f1 | awk '{print "-e", $1}') \
+           $docker $cmd ${args[@]}

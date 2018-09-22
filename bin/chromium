@@ -1,0 +1,6 @@
+#!/bin/bash
+
+_containerized --docker chromium \
+               --dockerargs "--net host -v $HOME/.config/chromium/:/data" \
+               --no-sandbox \
+               --user-data-dir=/data

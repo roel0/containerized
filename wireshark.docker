@@ -1,0 +1,5 @@
+FROM base:latest
+
+RUN pacman -Syu --noconfirm && \
+    pacman -S wireshark-gtk --noconfirm && \
+    chgrp wireshark /usr/bin/dumpcap

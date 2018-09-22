@@ -1,0 +1,5 @@
+#!/bin/bash
+
+_containerized --docker telegram \
+               --dockerargs "-v $(mktemp -d):/home/$USER/.local/share/TelegramDesktop" \
+               --cmd telegram-desktop

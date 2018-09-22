@@ -1,0 +1,4 @@
+#!/bin/bash
+
+_containerized --docker weechat \
+               --dockerargs "-e TERM=xterm"

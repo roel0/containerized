@@ -1,0 +1,4 @@
+FROM base:latest
+
+RUN pacman -Syu --noconfirm && \
+    pacman -S audacity --noconfirm

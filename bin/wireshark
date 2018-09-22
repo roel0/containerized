@@ -1,0 +1,5 @@
+#!/bin/bash
+
+_containerized --docker wireshark \
+               --dockerargs "--group-add wireshark" \
+               --cmd wireshark-gtk

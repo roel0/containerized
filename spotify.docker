@@ -1,0 +1,14 @@
+FROM aur:latest
+
+RUN pacman -S alsa-lib gconf gtk2 nss libglvnd --noconfirm && \
+    pacman -S libxtst libx11 libxss openssl-1.0 --noconfirm && \
+    pacman -S desktop-file-utils rtmpdump libcurl-gnutls --noconfirm
+
+USER builduser
+RUN cd /tmp && \
+    yaourt --getpkgbuild spotify-legacy --noconfirm && \
+    cd spotify-legacy && \
+    makepkg --skippgpcheck
+
+USER root
+RUN pacman -U /tmp/spotify-legacy/*.tar.xz --noconfirm

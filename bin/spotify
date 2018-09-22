@@ -1,0 +1,4 @@
+#!/bin/bash
+
+_containerized --docker spotify \
+               --dockerargs "-v $(mktemp -d):/home/$USER"
