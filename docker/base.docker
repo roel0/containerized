@@ -1,4 +1,0 @@
-FROM base/archlinux:latest
-
-RUN pacman-db-upgrade
-RUN pacman -Syyu --noconfirm
