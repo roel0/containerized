@@ -1,0 +1,13 @@
+FROM aur:latest
+
+RUN pacman -S alsa-lib gconf gtk3 libcurl-compat --noconfirm && \
+    pacman -S libxtst libxss nss --noconfirm
+
+USER builduser
+RUN cd /tmp && \
+    yaourt --getpkgbuild slack-desktop --noconfirm && \
+    cd slack-desktop && \
+    makepkg --skippgpcheck
+
+USER root
+RUN pacman -U /tmp/slack-desktop/*.tar.xz --noconfirm
