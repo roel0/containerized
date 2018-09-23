@@ -2,5 +2,5 @@
 
 _containerized --docker slack \
                --dockerargs "--ipc host
-                             -v /home/$USER/:/home/$USER/
+                             -v /home/$USER/.slack:/home/$USER/.slack
                              -v /home/$USER/.config/Slack:/home/$USER/.config/Slack"
